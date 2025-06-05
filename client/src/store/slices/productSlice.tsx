@@ -11,6 +11,7 @@ interface Product {
     unit: string
     imageURL?: string
     farmerId: string
+    farmerPhoneNumber: string
     farmerName: string;  // Add this
     farmerLocation: {    // Add this
         type: string;
@@ -21,14 +22,14 @@ interface Product {
 }
 
 interface Order {
-    id: string
+    _id: string
     communityId: string
     farmerId: string
     orderedBy: string
     produceId: string
     quantity: number
     totalPrice: number
-    status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled"
+    status: "pending" | "delivered"
     createdAt: string
     updatedAt: string
 }
@@ -147,7 +148,7 @@ export const fetchOrders = createAsyncThunk<Order[], void, { state: RootState, r
                 Authorization: `Bearer ${auth.token}`,
             },
         })
-        // console.log("Orders are", response);
+        console.log("Orders are", response.data.orders);
         return response.data.orders || []
     } catch (error: any) {
         return rejectWithValue(error.response?.data?.message || "Failed to fetch orders")

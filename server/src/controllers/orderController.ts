@@ -37,7 +37,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
         const order = await Order.create({
             communityId: community._id,
             produceId: id,
-            farmerId: farmer._id,
+            farmerId: farmer.farmerId,
             orderedBy: userId,
             quantity
         });

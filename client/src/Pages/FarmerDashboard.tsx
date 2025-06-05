@@ -91,13 +91,13 @@ const FarmerDashboard = () => {
     // console.log("Products are: ", products)
     // console.log("User object from state:", user);
 
-    console.log("Farmer Id is: ", user?._id);
-    products.map((product) => {
-        console.log("The farmer Id is: ", product.farmerId);
-    })
+    // console.log("Farmer Id is: ", user?._id);
+    // products.map((product) => {
+    //     console.log("The farmer Id is: ", product.farmerId);
+    // })
 
-    console.log("Full user object:", user)
-    console.log("LocalStorage user:", JSON.parse(localStorage.getItem("user")!))
+    // console.log("Full user object:", user)
+    // console.log("LocalStorage user:", JSON.parse(localStorage.getItem("user")!))
 
 
     const myProducts = products.filter((product) => {
@@ -105,17 +105,23 @@ const FarmerDashboard = () => {
         // console.log("User Id: ", user?._id)
         return product.farmerId === user?._id
     })
-    console.log("My proucts are: ", myProducts)
+    // console.log("My proucts are: ", myProducts)
 
     // console.log(myProducts);
     // Filter orders for products sold by the current farmer
     // console.log("Orders are: ", orders)
-    // console.log("Farmer Id is: ", user?._id);
     // orders.map((order) => {
     //     console.log("The farmer Id is: ", order.farmerId);
     // })
-    const myOrders = orders.filter((order) => { return order.farmerId === user?._id })
-    // console.log(myOrders);
+    const myOrders = orders.filter((order) => {
+
+        console.log(typeof order.farmerId, order.farmerId)
+        return order.farmerId === user?._id
+    })
+    console.log("Farmer Id is: ", user?._id);
+    orders.forEach(order => {
+        console.log("Farmer Id is in loop: ", order.farmerId);
+    });
 
     return (
         <div className="container mx-auto py-6 max-w-7xl">
@@ -267,9 +273,9 @@ const FarmerDashboard = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {myOrders.map((order) => (
                                         <TrackingStatus
-                                            key={order.id}
+                                            key={order._id}
                                             status={order.status}
-                                            orderId={order.id}
+                                            orderId={order._id}
                                             updatedAt={order.updatedAt}
                                         />
                                     ))}

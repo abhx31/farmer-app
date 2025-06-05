@@ -23,6 +23,7 @@ interface ProductCardProps {
         unit: string
         imageUrl?: string
         farmerId: string
+        farmerPhoneNumber: string
         farmerName: string
         farmerLocation: {
             type: string
@@ -161,6 +162,11 @@ const ProductCard = ({ product, onViewLocation, role }: ProductCardProps) => {
                         </Button>
                     )}
                 </div>
+                {role !== "Farmer" && (<div className="mt-6 text-sm text-muted-foreground">
+                    <div>Farmer: <span className="font-medium text-black">{product.farmerName}</span></div>
+                    <div>Phone Number: <span className="font-medium text-black">{product.farmerPhoneNumber}</span></div>
+                </div>)}
+
             </CardContent>
 
             <CardFooter className="border-t pt-4">

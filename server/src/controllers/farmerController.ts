@@ -45,7 +45,7 @@ export const getProduce = async (req: AuthenticatedRequest, res: Response) => {
     try {
 
         // Populate farmer information
-        const produce = await Produce.find({}).populate('farmerId', 'name location')
+        const produce = await Produce.find({}).populate('farmerId', 'name location phoneNumber')
         // console.log("Produce is", produce)
         // Transform the data to include farmerName and farmerLocation
         const transformedProduce = produce.map(product => {
@@ -57,6 +57,7 @@ export const getProduce = async (req: AuthenticatedRequest, res: Response) => {
                 ...productObj,
                 id: productObj._id.toString(), // Convert _id to id for frontend consistency
                 farmerName: farmer?.name || 'Unknown',
+                farmerPhoneNumber: farmer.phoneNumber,
                 farmerLocation: farmer?.location || {
                     type: 'Point',
                     coordinates: [0, 0]
