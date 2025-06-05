@@ -15,6 +15,8 @@ import TrackingStatus from "../components/TrackingStatus"
 import GoogleMap from "../components/GoogleMap"
 import { logout } from "../store/slices/authSlice"
 import { useNavigate } from "react-router-dom"
+import { fetchCommunityInterests } from "../store/slices/communityInterestSlice";
+
 
 const CommunityDashboard = () => {
     // console.log("CommunityDashboard rendered")
@@ -25,6 +27,8 @@ const CommunityDashboard = () => {
     const { user } = useSelector((state: RootState) => state.auth)
     const { products, orders, isLoading: productsLoading } = useSelector((state: RootState) => state.product)
     const { currentLocation, nearbyUsers, isLoading: locationLoading } = useSelector((state: RootState) => state.location)
+    const { interests, loading: interestsLoading, } = useSelector((state: RootState) => state.communityInterests);
+
     const [activeTab, setActiveTab] = useState("products")
     const [refreshing, setRefreshing] = useState(false)
     const [selectedFarmerLocation, setSelectedFarmerLocation] = useState<{
@@ -38,6 +42,7 @@ const CommunityDashboard = () => {
         console.log("Initial useEffect running")
         dispatch(getCurrentLocation())
         dispatch(fetchProducts())
+        dispatch(fetchCommunityInterests());
         dispatch(fetchOrders())
     }, [dispatch])
 
@@ -136,6 +141,7 @@ const CommunityDashboard = () => {
                     <TabsTrigger value="products">Products</TabsTrigger>
                     <TabsTrigger value="farmers">Nearby Farmers</TabsTrigger>
                     <TabsTrigger value="orders">Orders</TabsTrigger>
+                    <TabsTrigger value="interests">Interests</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="products" className="space-y-6">
@@ -166,7 +172,7 @@ const CommunityDashboard = () => {
                 </TabsContent>
 
                 <TabsContent value="farmers" className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="md:col-span-1">
                             <Card>
                                 <CardHeader>
@@ -269,6 +275,49 @@ const CommunityDashboard = () => {
                         </CardContent>
                     </Card>
                 </TabsContent>
+                <TabsContent value="interests" className="space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Community Interests</CardTitle>
+                            <CardDescription>Interests expressed by users in your community</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {interestsLoading ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                    <span className="ml-2">Loading interests...</span>
+                                </div>
+                            ) : interests.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <p>No interests found.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {interests.map((interest) => (
+                                        <Card key={interest._id}>
+                                            <CardContent className="p-4">
+                                                <div className="flex justify-between">
+                                                    <div>
+                                                        <h3 className="font-semibold">
+                                                            {interest.userId.name} ({interest.userId.email})
+                                                        </h3>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Interested in: {interest.productId.name}
+                                                        </p>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Quantity: {interest.quantity} {interest.productId.unit}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
             </Tabs>
         </div>
     )

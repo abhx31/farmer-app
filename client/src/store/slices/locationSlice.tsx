@@ -51,6 +51,11 @@ export const getCurrentLocation = createAsyncThunk<
                 (error) => {
                     reject(error.message)
                 },
+                {
+                    enableHighAccuracy: true,  // Enable high accuracy
+                    timeout: 10000,           // 10 seconds timeout
+                    maximumAge: 0             // Don't use cached position
+                }
             )
         })
     } catch (error: any) {

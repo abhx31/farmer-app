@@ -23,6 +23,7 @@ const signUpSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters"),
     phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
     role: z.enum(["User", "Farmer", "Admin"]),
+    communityName: z.string().min(2, "Community name is required"),
 })
 
 type SignUpFormValues = z.infer<typeof signUpSchema>
@@ -155,6 +156,11 @@ const SignUp = () => {
                                 </SelectContent>
                             </Select>
                             {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="communityName">Community Name</Label>
+                            <Input id="communityName" {...register("communityName")} />
+                            {errors.communityName && <p className="text-sm text-red-500">{errors.communityName.message}</p>}
                         </div>
 
                         {locationLoading && (

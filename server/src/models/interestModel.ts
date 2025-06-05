@@ -8,7 +8,7 @@ const interestSchema = new mongoose.Schema({
     },
     productId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
+        ref: "Produce",
         required: true,
     },
     quantity: {

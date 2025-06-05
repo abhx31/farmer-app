@@ -8,7 +8,14 @@ import { z } from "zod"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "../store"
 import { login } from "../store/slices/authSlice"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,8 +32,10 @@ type LoginFormValues = z.infer<typeof loginSchema>
 const Login = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch<AppDispatch>()
-    // const { toast } = useToast()
-    const { isAuthenticated, isLoading, error, user } = useSelector((state: RootState) => state.auth)
+    const { isAuthenticated, isLoading, error, user } = useSelector(
+        (state: RootState) => state.auth
+    )
+
     useEffect(() => {
         if (!isAuthenticated || !user) return
 
@@ -53,33 +62,14 @@ const Login = () => {
         resolver: zodResolver(loginSchema),
     })
 
-
     const onSubmit = async (data: LoginFormValues) => {
         try {
-            const result = await dispatch(login(data)).unwrap()
+            await dispatch(login(data)).unwrap()
             toast("Login successful")
-            // Navigation will happen in the useEffect above
-            switch (result.user.role) {
-                case "Farmer":
-                    navigate("/farmer-dashboard")
-                    break
-                case "Admin":
-                    navigate("/community-dashboard")
-                    break
-                case "User":
-                    navigate("/user-dashboard")
-                    break
-                default:
-                    navigate("/login")
-            }
-        } catch (error) {
-            const errorMessage =
-                error && typeof error === "object" && "message" in error
-                    ? (error as any).message
-                    : String(error)
-
+            // navigation handled by useEffect
+        } catch (err: any) {
             toast("Login failed", {
-                description: errorMessage,
+                description: err?.message || "An unexpected error occurred",
             })
         }
     }
@@ -95,17 +85,38 @@ const Login = () => {
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" {...register("email")} />
-                            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+                            <Input
+                                id="email"
+                                type="email"
+                                autoFocus
+                                {...register("email")}
+                            />
+                            {errors.email && (
+                                <p className="text-sm text-red-500">
+                                    {errors.email.message}
+                                </p>
+                            )}
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
-                            <Input id="password" type="password" {...register("password")} />
-                            {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+                            <Input
+                                id="password"
+                                type="password"
+                                {...register("password")}
+                            />
+                            {errors.password && (
+                                <p className="text-sm text-red-500">
+                                    {errors.password.message}
+                                </p>
+                            )}
                         </div>
 
-                        {error && <div className="p-2 text-sm text-red-500 bg-red-50 rounded">{error}</div>}
+                        {error && (
+                            <div className="p-2 text-sm text-red-500 bg-red-50 rounded">
+                                {error}
+                            </div>
+                        )}
 
                         <Button type="submit" className="w-full" disabled={isLoading}>
                             {isLoading ? (
@@ -122,7 +133,11 @@ const Login = () => {
                 <CardFooter className="flex justify-center">
                     <p className="text-sm text-gray-500">
                         Don't have an account?{" "}
-                        <Button variant="link" className="p-0" onClick={() => navigate("/signup")}>
+                        <Button
+                            variant="link"
+                            className="p-0"
+                            onClick={() => navigate("/signup")}
+                        >
                             Sign up
                         </Button>
                     </p>

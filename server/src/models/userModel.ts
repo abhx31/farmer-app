@@ -33,7 +33,15 @@ const userSchema = new mongoose.Schema({
             type: [Number], // [longitude, latitude]
             required: true,
         }
+    },
+    communityId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Community",
+        required: function (this: any) {
+            return this.role === "User";
+        }
     }
+
 }, { timestamps: true })
 userSchema.index({ location: "2dsphere" });
 export const User = mongoose.model("User", userSchema)
