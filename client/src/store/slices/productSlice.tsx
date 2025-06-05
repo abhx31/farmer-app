@@ -69,6 +69,8 @@ export const fetchProducts = createAsyncThunk<Product[], void, { state: RootStat
                 Authorization: `Bearer ${token}`
             }
         })
+
+        console.log(response.data.produce);
         // console.log("fetchProduct is: ", response.data);
         return response.data.produce || []
     } catch (error: any) {

@@ -78,7 +78,7 @@ const UserDashboard = () => {
     }
 
     // Filter orders for the current user
-    const myOrders = orders.filter((order) => order.buyerId === user?._id)
+    const myOrders = orders.filter((order) => order.orderedBy === user?._id)
 
     return (
         <div className="container mx-auto py-6 max-w-7xl">

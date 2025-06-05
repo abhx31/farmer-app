@@ -91,11 +91,12 @@ export const signup = createAsyncThunk<
     try {
         const response = await axios.post<AuthResponse>(`${API_URL}/auth/register`, userData)
         const { token, user } = response.data
-        const normalizedUser = { ...user, id: user._id }
-        delete (normalizedUser as any)._id
+
+        console.log("Response data is:", response.data)
+
         localStorage.setItem("token", token)
         localStorage.setItem("user", JSON.stringify(user))
-        return { token, user: normalizedUser }
+        return { token, user }
     } catch (error: any) {
         return rejectWithValue(error.response?.data?.message || "Signup failed")
     }

@@ -8,6 +8,7 @@ interface Interest {
         _id: string;
         name: string;
         email: string;
+        phoneNumber: string;
     };
     productId: {
         _id: string;

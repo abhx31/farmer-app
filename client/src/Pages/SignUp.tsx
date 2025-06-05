@@ -23,9 +23,24 @@ const signUpSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters"),
     phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
     role: z.enum(["User", "Farmer", "Admin"]),
-    communityName: z.string().min(2, "Community name is required"),
-})
-
+    communityName: z.string().min(2, "Community name must be at least 2 characters").optional(),
+}).superRefine((data, ctx) => {
+    // Only require communityName for Admin and User roles
+    if (data.role !== "Farmer" && !data.communityName) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Community name is required for Admin and User roles",
+            path: ["communityName"]
+        });
+    }
+    if (data.role === "Farmer" && data.communityName) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Community name should not be provided for Farmers",
+            path: ["communityName"]
+        });
+    }
+});
 type SignUpFormValues = z.infer<typeof signUpSchema>
 
 const SignUp = () => {
@@ -35,6 +50,7 @@ const SignUp = () => {
     const { isLoading, error } = useSelector((state: RootState) => state.auth)
     const { currentLocation, isLoading: locationLoading } = useSelector((state: RootState) => state.location)
     const [locationError, setLocationError] = useState<string | null>(null)
+    const [selectedRole, setSelectedRole] = useState<"User" | "Farmer" | "Admin">("User");
 
     const {
         register,
@@ -78,34 +94,49 @@ const SignUp = () => {
     // }, [isAuthenticated, user, navigate])
 
     const onSubmit = async (data: SignUpFormValues) => {
+        console.log("Form submitted with data:", data); // Add this
+        console.log("Current location:", currentLocation); // Add this
+
         if (!currentLocation) {
+            console.log("No location found"); // Add this
             toast("Location Required", {
                 description: "We need your location to proceed. Please enable location services.",
-            })
-            return
+            });
+            return;
         }
 
+        const submissionData = {
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            phoneNumber: data.phoneNumber,
+            role: data.role,
+            location: currentLocation,
+            ...(data.role !== "Farmer" && { communityName: data.communityName })
+        };
+
+        console.log("Prepared submission data:", submissionData); // Add this
+
         try {
-            await dispatch(
-                signup({
-                    ...data,
-                    location: currentLocation,
-                }),
-            ).unwrap()
-
-            toast("Account created", {
-                description: "You have successfully signed up!",
-            })
-
-            navigate("/login")
-
-            // Navigation will happen in the useEffect above
+            await dispatch(signup(submissionData)).unwrap();
+            toast("Account created");
+            navigate("/login");
         } catch (error) {
             toast("Sign up failed", {
                 description: error as string,
-            })
+            });
         }
-    }
+    };
+    const handleRoleChange = (value: string) => {
+        const role = value as "User" | "Farmer" | "Admin";
+        setSelectedRole(role);
+        setValue("role", role, { shouldValidate: true });
+
+        // Clear and unregister communityName for Farmers
+        if (role === "Farmer") {
+            setValue("communityName", undefined, { shouldValidate: true });
+        }
+    };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -143,9 +174,10 @@ const SignUp = () => {
                         <div className="space-y-2">
                             <Label htmlFor="role">Role</Label>
                             <Select
-                                onValueChange={(value) => setValue("role", value as "User" | "Farmer" | "Admin")}
+                                onValueChange={handleRoleChange}
                                 defaultValue="User"
                             >
+
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select your role" />
                                 </SelectTrigger>
@@ -157,11 +189,18 @@ const SignUp = () => {
                             </Select>
                             {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="communityName">Community Name</Label>
-                            <Input id="communityName" {...register("communityName")} />
-                            {errors.communityName && <p className="text-sm text-red-500">{errors.communityName.message}</p>}
-                        </div>
+                        {selectedRole !== "Farmer" && (
+                            <div className="space-y-2">
+                                <Label htmlFor="communityName">Community Name</Label>
+                                <Input
+                                    id="communityName"
+                                    {...register("communityName")}
+                                />
+                                {errors.communityName && (
+                                    <p className="text-sm text-red-500">{errors.communityName.message}</p>
+                                )}
+                            </div>
+                        )}
 
                         {locationLoading && (
                             <div className="flex items-center justify-center py-2">

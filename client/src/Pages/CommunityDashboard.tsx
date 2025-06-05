@@ -299,7 +299,8 @@ const CommunityDashboard = () => {
                                                 <div className="flex justify-between">
                                                     <div>
                                                         <h3 className="font-semibold">
-                                                            {interest.userId.name} ({interest.userId.email})
+                                                            {interest.userId.name} <br />
+                                                            {interest.userId.phoneNumber}
                                                         </h3>
                                                         <p className="text-sm text-muted-foreground">
                                                             Interested in: {interest.productId.name}

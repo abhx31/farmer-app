@@ -80,7 +80,7 @@ export const fetchNearbyUsers = createAsyncThunk<
                     },
                 },
             )
-            console.log(response.data);
+            // console.log(response.data);
             return response.data.users
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || "Failed to fetch nearby users")

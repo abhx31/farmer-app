@@ -29,7 +29,7 @@ const FarmerDashboard = () => {
     const [activeTab, setActiveTab] = useState("products")
     const [refreshing, setRefreshing] = useState(false)
 
-    console.log("Near by users are: ", nearbyUsers)
+    // console.log("Near by users are: ", nearbyUsers)
     useEffect(() => {
         // Get current location and fetch initial data
         dispatch(getCurrentLocation())
@@ -91,16 +91,21 @@ const FarmerDashboard = () => {
     // console.log("Products are: ", products)
     // console.log("User object from state:", user);
 
-    // console.log("Farmer Id is: ", user?._id);
-    // products.map((product) => {
-    //     console.log("The farmer Id is: ", product.farmerId);
-    // })
+    console.log("Farmer Id is: ", user?._id);
+    products.map((product) => {
+        console.log("The farmer Id is: ", product.farmerId);
+    })
+
+    console.log("Full user object:", user)
+    console.log("LocalStorage user:", JSON.parse(localStorage.getItem("user")!))
+
 
     const myProducts = products.filter((product) => {
         // console.log("Farmer Id: ", product.farmerId)
         // console.log("User Id: ", user?._id)
         return product.farmerId === user?._id
     })
+    console.log("My proucts are: ", myProducts)
 
     // console.log(myProducts);
     // Filter orders for products sold by the current farmer

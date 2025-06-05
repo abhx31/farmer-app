@@ -152,7 +152,7 @@ export const getCommunityInterests = async (req: AuthenticatedRequest, res: Resp
 
         // Step 3: Get all interests by these users
         const interests = await Interest.find({ userId: { $in: userIds } })
-            .populate("userId", "name email")
+            .populate("userId", "name email phoneNumber")
             .populate("productId");
 
         return res.status(200).json({

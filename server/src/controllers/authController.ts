@@ -6,48 +6,52 @@ import jwt from "jsonwebtoken"
 
 export const register = async (req: Request, res: Response) => {
     try {
+        // 1. Destructure with const (no changes needed here)
         const { name, email, password, role, phoneNumber, location, communityName } = req.body;
 
-        // communityName is required only if role is Admin or User
-        if ((role === "Admin" || role === "User") && !communityName) {
-            return res.status(400).json({ message: "Community name is required" });
+        // 2. Validate role first
+        if (!["User", "Farmer", "Admin"].includes(role)) {
+            return res.status(400).json({ message: "Invalid role" });
         }
 
+        // 3. Handle communityName validation without reassignment
+        if (role !== "Farmer") {
+            if (!communityName) {
+                return res.status(400).json({ message: "Community name is required" });
+            }
+        } else if (communityName) {
+            // Farmer shouldn't have communityName
+            return res.status(400).json({
+                message: "Community name should not be provided for Farmers"
+            });
+        }
+
+        // 4. Check for existing user
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(409).json({ message: "Email already registered" });
         }
 
+        // 5. Hash password
         const hashPassword = await bcrypt.hash(password, 10);
 
+        // 6. Handle community logic
         let community = null;
-
         if (role === "Admin") {
-            // Check if community already exists
             const existingCommunity = await Community.findOne({ name: communityName });
             if (existingCommunity) {
-                return res.status(400).json({ message: "Community already exists with this name" });
+                return res.status(400).json({ message: "Community already exists" });
             }
-
-            // Create community
-            community = await Community.create({
-                name: communityName,
-                userId: null, // temp, updated after user creation
-            });
+            community = await Community.create({ name: communityName });
         } else if (role === "User") {
-            // Join existing community
             community = await Community.findOne({ name: communityName });
             if (!community) {
-                return res.status(400).json({ message: "Community not found with the given name" });
+                return res.status(400).json({ message: "Community not found" });
             }
-        } else if (role === "Farmer") {
-            // For Farmer, community is not required or linked
-            community = null;
-        } else {
-            return res.status(400).json({ message: "Invalid role" });
         }
+        // For Farmer, community remains null
 
-        // Create new user
+        // 7. Create user
         const newUser = await User.create({
             name,
             email,
@@ -55,34 +59,39 @@ export const register = async (req: Request, res: Response) => {
             role,
             phoneNumber,
             location,
-            communityId: community ? community._id : undefined, // only set if community exists
+            communityId: community?._id // undefined for Farmers
         });
 
-        // If admin, link userId to the community
+        // 8. Link admin to community if needed
         if (role === "Admin" && community) {
             community.userId = newUser._id;
             await community.save();
         }
 
+        // 9. Generate token and respond
+        const token = jwt.sign(
+            { id: newUser._id, role: newUser.role },
+            process.env.JWT_SECRET as string
+        );
+
         return res.status(201).json({
-            message: "User Created Successfully",
+            message: "User created successfully",
             user: {
-                id: newUser._id,
+                _id: newUser._id,
                 name: newUser.name,
-                role: newUser.role,
                 email: newUser.email,
+                role: newUser.role,
                 phoneNumber: newUser.phoneNumber,
-                location: newUser.location,
-                communityId: newUser.communityId,
+                communityId: newUser.communityId
             },
+            token
         });
 
     } catch (e) {
-        console.error("Error during registration:", e);
-        return res.status(500).json({ message: "Internal Server Error" });
+        console.error("Registration error:", e);
+        return res.status(500).json({ message: "Internal server error" });
     }
 };
-
 
 
 export const login = async (req: Request, res: Response) => {
