@@ -28,6 +28,7 @@ const CommunityDashboard = () => {
     const { products, orders, isLoading: productsLoading } = useSelector((state: RootState) => state.product)
     const { currentLocation, nearbyUsers, isLoading: locationLoading } = useSelector((state: RootState) => state.location)
     const { interests, loading: interestsLoading, } = useSelector((state: RootState) => state.communityInterests);
+    console.log("In community Dashboard:", interests)
 
     const [activeTab, setActiveTab] = useState("products")
     const [refreshing, setRefreshing] = useState(false)

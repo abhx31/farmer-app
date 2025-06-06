@@ -11,20 +11,24 @@ import { toast } from "sonner"
 import { Loader2, LogOut, RefreshCw } from "lucide-react"
 import ProductCard from "../components/ProductCard"
 import GoogleMap from "../components/GoogleMap"
-import TrackingStatus from "../components/TrackingStatus"
 import { logout } from "../store/slices/authSlice"
 import { useNavigate } from "react-router-dom"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { fetchCommunityInterests } from "../store/slices/communityInterestSlice"
 
 const UserDashboard = () => {
     const dispatch = useDispatch<AppDispatch>()
     const navigate = useNavigate()
     // const { toast } = useToast()
     const { user } = useSelector((state: RootState) => state.auth)
-    const { products, orders, isLoading: productsLoading } = useSelector((state: RootState) => state.product)
+    const { products, isLoading: productsLoading } = useSelector((state: RootState) => state.product)
     const { currentLocation, isLoading: locationLoading } = useSelector((state: RootState) => state.location)
     const [activeTab, setActiveTab] = useState("products")
     const [refreshing, setRefreshing] = useState(false)
+    const { interests } = useSelector(
+        (state: RootState) => state.communityInterests
+    )
+
     const [selectedFarmerLocation, setSelectedFarmerLocation] = useState<{
         coordinates: [number, number]
         name: string
@@ -34,6 +38,7 @@ const UserDashboard = () => {
         // Get current location
         dispatch(getCurrentLocation())
         dispatch(fetchOrders())
+        dispatch(fetchCommunityInterests())
     }, [dispatch])
 
     // Fetch nearby products when location is available
@@ -78,7 +83,14 @@ const UserDashboard = () => {
     }
 
     // Filter orders for the current user
-    const myOrders = orders.filter((order) => order.orderedBy === user?._id)
+    interests.map((interest) => {
+        console.log("Interest made by the user are:", interest.userId.name);
+    })
+    console.log("User id is: ", user?._id)
+    const filteredInterests = interests.filter((interest) => {
+        return interest.userId._id === user?._id
+    })
+
 
     return (
         <div className="container mx-auto py-6 max-w-7xl">
@@ -194,25 +206,34 @@ const UserDashboard = () => {
                                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
                                     <span className="ml-2">Loading orders...</span>
                                 </div>
-                            ) : myOrders.length === 0 ? (
+                            ) : interests.length === 0 ? (
                                 <div className="text-center py-8 text-muted-foreground">
                                     <p>You haven't placed any orders yet.</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {myOrders.map((order) => (
-                                        <TrackingStatus
-                                            key={order._id}
-                                            status={order.status}
-                                            orderId={order._id}
-                                            updatedAt={order.updatedAt}
-                                        />
+                                    {filteredInterests.map((interest) => (
+                                        <Card key={interest._id} className="p-4">
+                                            <CardHeader>
+                                                <CardTitle>{interest.productId.name}</CardTitle>
+                                                <CardDescription>
+                                                    Price: ₹{interest.productId.price} per {interest.productId.unit}
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <p>
+                                                    Quantity Ordered: <strong>{interest.quantity}</strong>
+                                                </p>
+                                                <p>Ordered by: {interest.userId.name}</p>
+                                            </CardContent>
+                                        </Card>
                                     ))}
                                 </div>
                             )}
                         </CardContent>
                     </Card>
                 </TabsContent>
+
             </Tabs>
         </div>
     )

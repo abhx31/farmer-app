@@ -23,16 +23,18 @@ export const createInterest = async (req: AuthenticatedRequest, res: Response) =
         return res.status(500).json({ message: "Server error" })
     }
 }
-
 export const getAllInterests = async (req: Request, res: Response) => {
     try {
         const interests = await Interest.find()
-            .populate("userId", "username") // only bring `username` field from User
-            .populate("productId", "name")  // optionally populate product name too
+            .populate("userId", "_id name email phoneNumber")  // only these fields from user
+            .populate("productId", "_id name quantity price unit imageURL")  // these from product
+            .select("_id userId productId quantity createdAt updatedAt") // only these from Interest
 
-        return res.status(200).json(interests)
+        return res.status(200).json(interests);
     } catch (err) {
-        console.error("Error fetching interests:", err)
-        res.status(500).json({ message: "Server error" })
+        console.error("Error fetching interests:", err);
+        res.status(500).json({ message: "Server error" });
     }
-}
+};
+
+

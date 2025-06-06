@@ -5,7 +5,7 @@ import axios from "axios";
 interface Interest {
     _id: string;
     userId: {
-        _id: string;
+        _id: string | undefined;
         name: string;
         email: string;
         phoneNumber: string;
@@ -30,7 +30,7 @@ interface CommunityInterestState {
 }
 
 interface CommunityResponse {
-    message: string,
+    message: string
     interests: Interest[]
 }
 
@@ -45,13 +45,15 @@ export const fetchCommunityInterests = createAsyncThunk(
     "communityInterests/fetch",
     async (_, { rejectWithValue }) => {
         try {
-            const res = await axios.get<CommunityResponse>(`${API_URL}/user/admin/interests`, {
+            const token = localStorage.getItem("token")
+            console.log('Token is:', token)
+            const res = await axios.get<CommunityResponse>(`${API_URL}/interest`, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`, // adjust if using cookies
+                    Authorization: `Bearer ${token}`, // adjust if using cookies
                 },
             });
-            console.log("Interests are: ", res.data.interests);
-            return res.data.interests;
+            console.log("Interests are: ", res.data);
+            return res.data;
         } catch (err: any) {
             return rejectWithValue(err.response?.data?.message || "Failed to fetch interests");
         }
