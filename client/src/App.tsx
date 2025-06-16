@@ -9,6 +9,7 @@ import FarmerDashboard from "./Pages/FarmerDashboard"
 import CommunityDashboard from "./Pages/CommunityDashboard"
 import UserDashboard from "./Pages/UserDashboard"
 import ProtectedRoute from "./components/ProtectedRoute"
+import LandingPage from "./Pages/LandingPage"
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       {/* <ThemeProvider defaultTheme="light" storageKey="produce-platform-theme"> */}
       <Router>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route

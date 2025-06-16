@@ -22,16 +22,17 @@ interface Product {
 }
 
 interface Order {
-    _id: string
-    communityId: string
-    farmerId: string
-    orderedBy: string
-    produceId: string
-    quantity: number
-    totalPrice: number
-    status: "pending" | "delivered"
-    createdAt: string
-    updatedAt: string
+    _id: string;
+    communityId: string;
+    farmerId: string;
+    orderedBy: string;
+    produceId: string;
+    produceName?: string; // Newly added
+    quantity: number;
+    totalPrice: number;
+    status: "pending" | "delivered";
+    createdAt: string;
+    updatedAt: string;
 }
 
 interface ProductState {
@@ -327,6 +328,23 @@ const productSlice = createSlice({
                 state.isLoading = false
                 state.error = action.payload as string
             })
+            // Update Order Status
+            .addCase(updateOrderStatus.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(updateOrderStatus.fulfilled, (state, action) => {
+                state.isLoading = false;
+                const index = state.orders.findIndex(o => o._id === action.payload._id);
+                if (index !== -1) {
+                    state.orders[index] = action.payload;
+                }
+            })
+            .addCase(updateOrderStatus.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+
             // Create Order
             .addCase(createOrder.pending, (state) => {
                 state.isLoading = true

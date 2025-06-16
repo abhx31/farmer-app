@@ -95,16 +95,31 @@ export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
 export const getNearbyUsers = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { longitude, latitude, role } = req.query;
+        console.log("Query Parameters:");
+console.log("Longitude:", longitude);
+console.log("Latitude:", latitude);
+console.log("Role:", role);
 
-        console.log(latitude);
-        console.log("Longitude is: ", longitude);
-        console.log("Role is: ", role);
+
         if (!longitude || !latitude || !role) {
             return res.status(400).json({ message: "Missing required query parameters" });
         }
 
-        const coordinates: [number, number] = [parseFloat(longitude as string), parseFloat(latitude as string)];
-        console.log(coordinates);
+        const coordinates: [number, number] = [
+            parseFloat(longitude as string),
+            parseFloat(latitude as string)
+        ];
+
+        let targetRole = "";
+
+        // Determine target role to search for
+        if (role === "Farmer") {
+            targetRole = "Admin"; // or "user" if you have that
+        } else if (role === "Admin" || role === "User") {
+            targetRole = "Farmer";
+        } else {
+            return res.status(400).json({ message: "Invalid role" });
+        }
 
         const nearbyUsers = await User.aggregate([
             {
@@ -116,13 +131,13 @@ export const getNearbyUsers = async (req: AuthenticatedRequest, res: Response) =
                     distanceField: "distance",
                     maxDistance: 10000, // 10km
                     spherical: true,
-                    query: { role },
+                    query: { role: targetRole },
                 },
             },
         ]);
-        console.log(nearbyUsers);
+
         return res.status(200).json({
-            message: `Nearby ${role}s fetched successfully`,
+            message: `Nearby ${targetRole}s fetched successfully`,
             users: nearbyUsers,
         });
     } catch (e: any) {
@@ -133,6 +148,7 @@ export const getNearbyUsers = async (req: AuthenticatedRequest, res: Response) =
         });
     }
 };
+
 
 export const getCommunityInterests = async (req: AuthenticatedRequest, res: Response) => {
     try {

@@ -83,6 +83,7 @@ export const getProduce = async (req: AuthenticatedRequest, res: Response) => {
 export const updateProduce = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const farmerId = req.id;
+        console.log("update produce hitted")
         const id = req.params.id;
         const { name, quantity, price, unit } = req.body
 
@@ -106,45 +107,49 @@ export const updateProduce = async (req: AuthenticatedRequest, res: Response) =>
             produce
         })
     } catch (e: any) {
+        console.log(e)
         return res.status(500).json({
             message: "Internal Server Error",
             e: e.message
         })
     }
 }
+import mongoose from "mongoose";
 
 export const deleteProduce = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const farmerId = req.id;
         const id = req.params.id;
+        console.log("deleteProduce hitted")
+        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid or missing produce ID" });
+        }
 
-
-        const produce = await Produce.findOne({ _id: id, farmerId })
-
-        console.log("Produce is: ", produce);
+        const produce = await Produce.findOne({
+            _id: new mongoose.Types.ObjectId(id),
+            farmerId: new mongoose.Types.ObjectId(farmerId)
+        });
 
         if (!produce) {
             return res.status(403).json({
                 message: "Unauthorized or produce not found"
-            })
+            });
         }
 
-        const del = await Produce.findByIdAndDelete(
-            id
-        )
-
+        const del = await Produce.findByIdAndDelete(id);
+        console.log(del)
         return res.status(200).json({
             message: "Deleted successfully",
             del
-        })
+        });
     } catch (e: any) {
-        console.log(e);
+        console.log("Delete produce error:", e);
         return res.status(500).json({
             message: "Internal Server Error",
             e: e.message
-        })
+        });
     }
-}
+};
 export const getProduceById = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const id = req.id

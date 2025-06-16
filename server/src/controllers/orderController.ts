@@ -61,22 +61,32 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
 
 
 export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
-    try {
-        const orders = await Order.find({})
+  try {
+    const orders = await Order.find({}).lean();
 
-        // console.log(orders);
+    // Fetch all produce in one go to avoid N+1 query problem
+    const produceIds = orders.map(order => order.produceId);
+    const produces = await Produce.find({ _id: { $in: produceIds } }).lean();
 
-        return res.status(200).json({
-            message: "Orders fetched successfully",
-            orders
-        });
-    } catch (e: any) {
-        console.log(e);
-        return res.status(500).json({
-            message: "Internal Server Error"
-        });
-    }
+    const produceMap = new Map(produces.map(p => [p._id.toString(), p.name]));
+
+    const updatedOrders = orders.map(order => ({
+      ...order,
+      produceName: produceMap.get(order.produceId.toString()) || "Unknown"
+    }));
+
+    return res.status(200).json({
+      message: "Orders fetched successfully",
+      orders: updatedOrders
+    });
+  } catch (e: any) {
+    console.log(e);
+    return res.status(500).json({
+      message: "Internal Server Error"
+    });
+  }
 };
+
 
 
 // controllers/orderController.ts

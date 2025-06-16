@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { User } from "./userModel";
+import { Interest } from "./interestModel";
+import { Order } from "./orderModel";
 
 const produceSchema = new mongoose.Schema({
     name: {
@@ -27,5 +29,16 @@ const produceSchema = new mongoose.Schema({
         required: true,
     }
 }, { timestamps: true })
+
+produceSchema.pre("findOneAndDelete", async function (next) {
+    const produce = await this.model.findOne(this.getFilter());
+
+    if (produce) {
+        await Interest.deleteMany({ productId: produce._id });
+        await Order.deleteMany({ produceId: produce._id });
+    }
+
+    next();
+});
 
 export const Produce = mongoose.model("Produce", produceSchema)

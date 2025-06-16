@@ -29,6 +29,8 @@ const imageMap: Record<string, string> = {
     Potato: "/assets/products/potato.jpg",
     Carrot: "/assets/products/carrot.jpg",
     Onion: "/assets/products/onion.jpg",
+    Brinjal:"/assets/products/brinjal.jpg",
+    Spinach:"/assets/products/spinach.jpg",
     // Add more as needed
 }
 
@@ -134,6 +136,7 @@ const ProductForm = () => {
                                 <SelectItem value="lb">Pound (lb)</SelectItem>
                                 <SelectItem value="oz">Ounce (oz)</SelectItem>
                                 <SelectItem value="piece">Piece</SelectItem>
+                                
                                 <SelectItem value="bunch">Bunch</SelectItem>
                                 <SelectItem value="dozen">Dozen</SelectItem>
                             </SelectContent>

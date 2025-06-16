@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Clock, Package } from "lucide-react"
 
 interface TrackingStatusProps {
+    produceName:string| undefined
+    quantity:number
     status: "pending" | "delivered"
     orderId: string
     updatedAt: string
 }
 
-const TrackingStatus = ({ status, orderId, updatedAt }: TrackingStatusProps) => {
+const TrackingStatus = ({ produceName,quantity,status, orderId, updatedAt }: TrackingStatusProps) => {
     const getStatusDetails = () => {
         switch (status) {
             case "pending":
@@ -44,7 +46,10 @@ const TrackingStatus = ({ status, orderId, updatedAt }: TrackingStatusProps) => 
         <Card>
             <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
-                    <CardTitle className="text-sm font-medium">Order #{orderId.slice(0, 8)}</CardTitle>
+                    <CardTitle className="text-sm font-medium">Order #{orderId.slice(0, 8)}
+                         <div>Name : {produceName}</div>
+                         <div>Quantity:{quantity}</div>
+                         </CardTitle>
                     <Badge className={color}>{label}</Badge>
                 </div>
             </CardHeader>
