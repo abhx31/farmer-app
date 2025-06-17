@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/tool
 import axios from "axios"
 
 interface User {
-    id: string
+    _id: string
     name: string
     role: string
     location: {
@@ -65,12 +65,13 @@ export const getCurrentLocation = createAsyncThunk<
 
 export const fetchNearbyUsers = createAsyncThunk<
     User[], // ✅ Return type
-    { coordinates: [number, number]; role: string }, // ✅ Argument type
+    { coordinates: [number, number]; role?: string }, // ✅ Argument type
     { rejectValue: string } // ✅ Rejection type
 >(
     "location/fetchNearbyUsers",
     async ({ coordinates, role }, { rejectWithValue, getState }) => {
         try {
+            console.log("Role from frontend", role);
             const { auth } = getState() as { auth: { token: string } }
             const response = await axios.get<NearbyUsersResponse>(
                 `${API_URL}/user/nearby?longitude=${coordinates[0]}&latitude=${coordinates[1]}&radius=10&role=${role}`,
@@ -80,7 +81,7 @@ export const fetchNearbyUsers = createAsyncThunk<
                     },
                 },
             )
-             console.log("the nearby users are :",response.data);
+            console.log("the nearby users are :", response.data);
             return response.data.users
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || "Failed to fetch nearby users")

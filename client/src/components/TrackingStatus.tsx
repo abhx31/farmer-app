@@ -1,16 +1,27 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Clock, Package } from "lucide-react"
+import { Clock, Package, Phone, User } from "lucide-react"
 
 interface TrackingStatusProps {
-    produceName:string| undefined
-    quantity:number
+    produceName: string | undefined
+    quantity: number
+    role: string | undefined
     status: "pending" | "delivered"
     orderId: string
     updatedAt: string
+    contactName?: string
+    contactPhone?: string
 }
 
-const TrackingStatus = ({ produceName,quantity,status, orderId, updatedAt }: TrackingStatusProps) => {
+const TrackingStatus = ({
+    produceName,
+    quantity,
+    status,
+    orderId,
+    updatedAt,
+    contactName,
+    contactPhone
+}: TrackingStatusProps) => {
     const getStatusDetails = () => {
         switch (status) {
             case "pending":
@@ -47,9 +58,9 @@ const TrackingStatus = ({ produceName,quantity,status, orderId, updatedAt }: Tra
             <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
                     <CardTitle className="text-sm font-medium">Order #{orderId.slice(0, 8)}
-                         <div>Name : {produceName}</div>
-                         <div>Quantity:{quantity}</div>
-                         </CardTitle>
+                        <div>Name : {produceName}</div>
+                        <div>Quantity: {quantity}</div>
+                    </CardTitle>
                     <Badge className={color}>{label}</Badge>
                 </div>
             </CardHeader>
@@ -61,6 +72,21 @@ const TrackingStatus = ({ produceName,quantity,status, orderId, updatedAt }: Tra
                         <p className="text-xs text-muted-foreground">Last updated: {new Date(updatedAt).toLocaleString()}</p>
                     </div>
                 </div>
+
+                {/* Contact Information */}
+                {contactName && contactPhone && (
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="flex gap-2 items-center text-sm">
+                            <User className="w-4 h-4 text-blue-500" />
+                            <span className="font-medium">Contact:</span>
+                            <span>{contactName}</span>
+                        </div>
+                        <div className="flex gap-2 items-center text-sm">
+                            <Phone className="w-4 h-4 text-blue-500" />
+                            <span>{contactPhone}</span>
+                        </div>
+                    </div>
+                )}
 
                 <div className="relative h-2 rounded-full bg-gray-200 mb-3">
                     <div className={`absolute h-2 rounded-full ${progress}`}></div>

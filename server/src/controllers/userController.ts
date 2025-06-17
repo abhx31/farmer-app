@@ -96,9 +96,9 @@ export const getNearbyUsers = async (req: AuthenticatedRequest, res: Response) =
     try {
         const { longitude, latitude, role } = req.query;
         console.log("Query Parameters:");
-console.log("Longitude:", longitude);
-console.log("Latitude:", latitude);
-console.log("Role:", role);
+        console.log("Longitude:", longitude);
+        console.log("Latitude:", latitude);
+        console.log("Role:", role);
 
 
         if (!longitude || !latitude || !role) {
@@ -120,7 +120,7 @@ console.log("Role:", role);
         } else {
             return res.status(400).json({ message: "Invalid role" });
         }
-
+        console.log("Target Role is: ", targetRole)
         const nearbyUsers = await User.aggregate([
             {
                 $geoNear: {
@@ -135,7 +135,7 @@ console.log("Role:", role);
                 },
             },
         ]);
-
+        console.log("Near by Users are: ", nearbyUsers)
         return res.status(200).json({
             message: `Nearby ${targetRole}s fetched successfully`,
             users: nearbyUsers,

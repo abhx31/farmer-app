@@ -46,11 +46,11 @@ const CommunityDashboard = () => {
       dispatch(
         fetchNearbyUsers({
           coordinates: currentLocation.coordinates,
-          role: "Farmer",
+          role: user?.role,
         }),
       )
     }
-  }, [dispatch, currentLocation])
+  }, [dispatch, currentLocation, user?.role])
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -65,7 +65,7 @@ const CommunityDashboard = () => {
               return dispatch(
                 fetchNearbyUsers({
                   coordinates: location.coordinates,
-                  role: "Farmer",
+                  role: user?.role,
                 }),
               ).unwrap()
             }
@@ -290,11 +290,10 @@ const CommunityDashboard = () => {
                         {nearbyUsers.map((farmer: any) => (
                           <Card
                             key={farmer.id}
-                            className={`transition-all duration-300 cursor-pointer hover:shadow-lg ${
-                              selectedFarmerLocation?.name === farmer.name
-                                ? "border-blue-500 bg-blue-50/80 shadow-md"
-                                : "border-slate-200 hover:border-blue-300 bg-white/60"
-                            }`}
+                            className={`transition-all duration-300 cursor-pointer hover:shadow-lg ${selectedFarmerLocation?.name === farmer.name
+                              ? "border-blue-500 bg-blue-50/80 shadow-md"
+                              : "border-slate-200 hover:border-blue-300 bg-white/60"
+                              }`}
                           >
                             <CardContent className="p-5">
                               <div className="flex justify-between items-center">
@@ -389,7 +388,7 @@ const CommunityDashboard = () => {
                     {myOrders.map((order: any) => (
                       <div key={order.id} className="group transform hover:scale-105 transition-all duration-300">
                         <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-100">
-                          <TrackingStatus status={order.status} quantity={order.quantity} orderId={order._id} updatedAt={order.updatedAt} produceName={order.produceName}/>
+                          <TrackingStatus status={order.status} role={user?.role} quantity={order.quantity} orderId={order._id} updatedAt={order.updatedAt} produceName={order.produceName} />
                         </div>
                       </div>
                     ))}
